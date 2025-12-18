@@ -1,42 +1,13 @@
 import { useState, useEffect } from 'react';
 import './EmployeeDashboard.css';
 
+const API_BASE_URL = 'http://localhost:5000';
+
 function EmployeeDashboard({ user, onLogout }) {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showApplyForm, setShowApplyForm] = useState(false);
-  
-  // Get storage key for this specific employee
-  const getStorageKey = () => `leaveRequests_${user.email}`;
-  
-  // Initialize leave requests from localStorage for this specific employee
-  const [leaveRequests, setLeaveRequests] = useState(() => {
-    const savedRequests = localStorage.getItem(getStorageKey());
-    if (savedRequests) {
-      return JSON.parse(savedRequests);
-    }
-    // Return empty array for new employees, or demo data for demo account
-    if (user.email === 'employee@company.com') {
-      return [
-        {
-          id: 1,
-          startDate: '12/20/2024',
-          endDate: '12/22/2024',
-          days: 3,
-          reason: 'Family vacation',
-          status: 'Pending'
-        },
-        {
-          id: 2,
-          startDate: '11/10/2024',
-          endDate: '11/12/2024',
-          days: 3,
-          reason: 'Medical leave',
-          status: 'Approved'
-        }
-      ];
-    }
-    return [];
-  });
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [newLeave, setNewLeave] = useState({
     startDate: '',
@@ -44,12 +15,30 @@ function EmployeeDashboard({ user, onLogout }) {
     reason: ''
   });
 
-  // Save leave requests to localStorage for this specific employee
-  useEffect(() => {
-    localStorage.setItem(getStorageKey(), JSON.stringify(leaveRequests));
-  }, [leaveRequests]);
+  // Fetch leave requests from backend
+  const fetchLeaveRequests = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/leaves/my-leaves`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setLeaveRequests(data.leaves || []);
+      }
+    } catch (err) {
+      console.error('Error fetching leaves:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchLeaveRequests();
+    
     const timer = setTimeout(() => {
       setShowWelcome(false);
     }, 3000);
@@ -57,40 +46,59 @@ function EmployeeDashboard({ user, onLogout }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const calculateDays = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const diffTime = Math.abs(endDate - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    return diffDays;
-  };
-
-  const handleSubmitLeave = (e) => {
+  const handleSubmitLeave = async (e) => {
     e.preventDefault();
-    const days = calculateDays(newLeave.startDate, newLeave.endDate);
+    setLoading(true);
     
-    const newRequest = {
-      id: Date.now(), // Use timestamp for unique ID
-      employee: user.name,
-      employeeEmail: user.email,
-      startDate: new Date(newLeave.startDate).toLocaleDateString('en-US'),
-      endDate: new Date(newLeave.endDate).toLocaleDateString('en-US'),
-      days: days,
-      reason: newLeave.reason,
-      status: 'Pending'
-    };
+    try {
+      const token = localStorage.getItem('token');
+      
+      console.log('Token:', token);
+      console.log('Submitting leave:', { startDate: newLeave.startDate, endDate: newLeave.endDate, reason: newLeave.reason });
+      
+      if (!token) {
+        alert('You are not logged in! Please logout and login again with: employee1@ems.com / emp123');
+        setLoading(false);
+        return;
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/leaves`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          startDate: newLeave.startDate,
+          endDate: newLeave.endDate,
+          reason: newLeave.reason
+        })
+      });
 
-    // Add to employee's personal leave requests
-    setLeaveRequests([newRequest, ...leaveRequests]);
-    
-    // Also add to admin's view of all leave requests
-    const adminRequests = JSON.parse(localStorage.getItem('adminLeaveRequests') || '[]');
-    adminRequests.unshift(newRequest);
-    localStorage.setItem('adminLeaveRequests', JSON.stringify(adminRequests));
-    
-    setNewLeave({ startDate: '', endDate: '', reason: '' });
-    setShowApplyForm(false);
-    alert('Leave request submitted successfully!');
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        alert('✅ Leave request submitted successfully!');
+        setNewLeave({ startDate: '', endDate: '', reason: '' });
+        setShowApplyForm(false);
+        fetchLeaveRequests(); // Refresh the list
+      } else {
+        const error = await response.json();
+        console.error('Server error response:', error);
+        
+        if (response.status === 401) {
+          alert('⚠️ Authentication failed! You need to:\n1. Click Logout\n2. Login with: employee1@ems.com / emp123\n3. Try again');
+        } else {
+          alert(`❌ Error: ${error.message || JSON.stringify(error)}`);
+        }
+      }
+    } catch (err) {
+      console.error('Network error:', err);
+      alert(`❌ Cannot connect to server!\n\nMake sure:\n1. Backend is running (npm run dev in Backend folder)\n2. Server is on http://localhost:5000\n\nError: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const pendingCount = leaveRequests.filter(req => req.status === 'Pending').length;
@@ -103,7 +111,7 @@ function EmployeeDashboard({ user, onLogout }) {
       <header className="dashboard-header">
         <div className="header-left">
           
-          <h1 className="header-title">Leave Manager</h1>
+          <h1 className="header-title">Employee Leave Management System 🗓️</h1>
         </div>
         <div className="header-right">
           <div className="user-info">
@@ -114,7 +122,7 @@ function EmployeeDashboard({ user, onLogout }) {
           </div>
           <button className="logout-btn" onClick={onLogout}>
             
-            Logout
+            Logout ➜]
           </button>
         </div>
       </header>
@@ -167,21 +175,7 @@ function EmployeeDashboard({ user, onLogout }) {
         {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon stat-icon-blue">
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#2563eb" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </div>
+            
             <div className="stat-content">
               <div className="stat-number">{pendingCount}</div>
               <div className="stat-label">Pending</div>
@@ -189,21 +183,6 @@ function EmployeeDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon-green">
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#20c997" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-            </div>
             <div className="stat-content">
               <div className="stat-number">{approvedCount}</div>
               <div className="stat-label">Approved</div>
@@ -211,22 +190,6 @@ function EmployeeDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon stat-icon-red">
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#dc3545" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-            </div>
             <div className="stat-content">
               <div className="stat-number">{rejectedCount}</div>
               <div className="stat-label">Rejected</div>
@@ -247,19 +210,33 @@ function EmployeeDashboard({ user, onLogout }) {
               </tr>
             </thead>
             <tbody>
-              {leaveRequests.map((request) => (
-                <tr key={request.id}>
-                  <td>{request.startDate}</td>
-                  <td>{request.endDate}</td>
-                  <td>{request.days}</td>
-                  <td>{request.reason}</td>
-                  <td>
-                    <span className={`status-badge status-${request.status.toLowerCase()}`}>
-                      {request.status}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                    Loading...
                   </td>
                 </tr>
-              ))}
+              ) : leaveRequests.length === 0 ? (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                    No leave requests found. Apply for your first leave!
+                  </td>
+                </tr>
+              ) : (
+                leaveRequests.map((request) => (
+                  <tr key={request._id}>
+                    <td>{new Date(request.startDate).toLocaleDateString()}</td>
+                    <td>{new Date(request.endDate).toLocaleDateString()}</td>
+                    <td>{request.totalDays}</td>
+                    <td>{request.reason}</td>
+                    <td>
+                      <span className={`status-badge status-${request.status.toLowerCase()}`}>
+                        {request.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

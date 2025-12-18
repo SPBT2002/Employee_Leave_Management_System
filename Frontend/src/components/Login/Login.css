@@ -98,32 +98,6 @@
   background-color: #0a58ca;
 }
 
-.demo-credentials {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 24px;
-}
-
-.demo-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #6c757d;
-  margin: 0 0 12px 0;
-  letter-spacing: 0.5px;
-}
-
-.demo-item {
-  font-size: 14px;
-  color: #495057;
-  margin: 8px 0;
-}
-
-.demo-item strong {
-  font-weight: 600;
-  color: #1a1a1a;
-}
 
 .create-account-link {
   text-align: center;

@@ -1,71 +1,59 @@
 import { useState } from 'react';
 import './Login.css';
 
+const API_BASE_URL = 'http://localhost:5000';
+
 function Login({ onLogin, onShowCreateAccount }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    // Check admin credentials
-    if (email === 'admin@company.com' && password === 'admin123') {
-      onLogin({ 
-        name: 'Admin User', 
-        email: email, 
-        role: 'admin' 
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
       });
-      return;
-    }
 
-    // Check demo employee credentials
-    if (email === 'employee@company.com' && password === 'emp123') {
-      onLogin({ 
-        name: 'Employee User', 
-        email: email, 
-        role: 'employee' 
-      });
-      return;
-    }
+      const data = await response.json();
 
-    // Check registered users
-    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const user = registeredUsers.find(u => u.email === email && u.password === password);
-    
-    if (user) {
-      onLogin({
-        name: user.name,
-        email: user.email,
-        employeeId: user.employeeId,
-        role: user.role
-      });
-    } else {
-      alert('Invalid credentials! Please check your email and password or create an account.');
+      if (response.ok && data.success) {
+        // Save token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Call onLogin with user data
+        onLogin({
+          name: data.user.fullName,
+          email: data.user.email,
+          username: data.user.username,
+          role: data.user.role,
+          id: data.user.id
+        });
+      } else {
+        setError(data.message || 'Login failed. Please check your credentials.');
+      }
+    } catch (err) {
+      setError('Unable to connect to server. Please make sure the backend is running.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
-        <div className="login-icon">
-          <svg 
-            width="48" 
-            height="48" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="#0d6efd" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </div>
 
-        <h1 className="login-title">Leave Management System</h1>
+        <h1 className="login-title">Employee Leave Management System</h1>
         <p className="login-subtitle">Sign in to your account</p>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -99,21 +87,26 @@ function Login({ onLogin, onShowCreateAccount }) {
             />
           </div>
 
-          <button type="submit" className="sign-in-btn">
-            Sign In
+          {error && (
+            <div style={{
+              color: '#dc3545',
+              backgroundColor: '#f8d7da',
+              padding: '10px',
+              borderRadius: '5px',
+              marginBottom: '15px',
+              border: '1px solid #f5c2c7',
+              textAlign: 'center'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button type="submit" className="sign-in-btn" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="demo-credentials">
-          <p className="demo-title">DEMO CREDENTIALS:</p>
-          <p className="demo-item">
-            <strong>Admin:</strong> admin@company.com / admin123
-          </p>
-          <p className="demo-item">
-            <strong>Employee:</strong> employee@company.com / emp123
-          </p>
-        </div>
-
+        
         <div className="create-account-link">
           <p>Don't have an account? <button onClick={onShowCreateAccount} className="link-btn">Create Account</button></p>
         </div>

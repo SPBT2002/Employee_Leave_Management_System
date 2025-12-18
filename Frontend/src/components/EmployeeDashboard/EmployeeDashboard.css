@@ -43,6 +43,7 @@
 
 .user-name {
   font-weight: 500;
+  font-size: 16px;
 }
 
 .user-role {
@@ -171,18 +172,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.stat-icon-blue {
-  background-color: #dbeafe;
-}
-
-.stat-icon-green {
-  background-color: #d1f4e0;
-}
-
-.stat-icon-red {
-  background-color: #f8d7da;
 }
 
 .stat-content {
