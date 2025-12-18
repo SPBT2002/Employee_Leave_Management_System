@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './CreateAccount.css';
 
+const API_BASE_URL = 'http://localhost:5000';
+
 function CreateAccount({ onAccountCreated, onBackToLogin }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,6 +12,7 @@ function CreateAccount({ onAccountCreated, onBackToLogin }) {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -40,42 +43,46 @@ function CreateAccount({ onAccountCreated, onBackToLogin }) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Check if email already exists
-    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    if (existingUsers.some(user => user.email === formData.email)) {
-      newErrors.email = 'Email already registered';
-    }
-
-    // Check if employee ID already exists
-    if (existingUsers.some(user => user.employeeId === formData.employeeId)) {
-      newErrors.employeeId = 'Employee ID already exists';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Get existing users
-      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      setLoading(true);
       
-      // Add new user
-      const newUser = {
-        name: formData.name,
-        employeeId: formData.employeeId,
-        email: formData.email,
-        password: formData.password,
-        role: 'employee'
-      };
-      
-      existingUsers.push(newUser);
-      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.employeeId,
+            employeeId: formData.employeeId,
+            email: formData.email,
+            password: formData.password,
+            fullName: formData.name,
+            role: 'employee'
+          })
+        });
 
-      alert('Account created successfully! Please login.');
-      onAccountCreated();
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert('Account created successfully! Please login with your credentials.');
+          onAccountCreated();
+        } else {
+          setErrors({ submit: data.message || 'Registration failed. Please try again.' });
+        }
+      } catch (err) {
+        setErrors({ submit: 'Unable to connect to server. Please make sure the backend is running.' });
+        console.error('Registration error:', err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -97,23 +104,8 @@ function CreateAccount({ onAccountCreated, onBackToLogin }) {
   return (
     <div className="create-account-container">
       <div className="create-account-card">
-        <div className="create-account-icon">
-          <svg 
-            width="48" 
-            height="48" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="#0d6efd" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </div>
 
-        <h1 className="create-account-title">Create Employee Account</h1>
+        <h1 className="create-account-title">Employee Leave Management System</h1>
         <p className="create-account-subtitle">Register to access the leave management system</p>
 
         <form onSubmit={handleSubmit} className="create-account-form">
@@ -197,8 +189,22 @@ function CreateAccount({ onAccountCreated, onBackToLogin }) {
             {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
           </div>
 
-          <button type="submit" className="create-account-btn">
-            Create Account
+          {errors.submit && (
+            <div style={{
+              color: '#dc3545',
+              backgroundColor: '#f8d7da',
+              padding: '10px',
+              borderRadius: '5px',
+              marginBottom: '15px',
+              border: '1px solid #f5c2c7',
+              textAlign: 'center'
+            }}>
+              {errors.submit}
+            </div>
+          )}
+
+          <button type="submit" className="create-account-btn" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
