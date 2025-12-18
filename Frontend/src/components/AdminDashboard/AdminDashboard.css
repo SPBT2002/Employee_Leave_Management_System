@@ -112,12 +112,6 @@
   margin: 0 0 8px 0;
 }
 
-.page-subtitle {
-  font-size: 16px;
-  color: #6c757d;
-  margin: 0;
-}
-
 /* Stats Grid */
 .stats-grid {
   display: grid;
