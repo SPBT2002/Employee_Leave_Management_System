@@ -9,8 +9,6 @@ const generateToken = (id) => {
 };
 
 // @desc    Login user
-// @route   POST /auth/login
-// @access  Public
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -52,25 +50,23 @@ const login = async (req, res) => {
   }
 };
 
-// @desc    Register user (for testing/setup - can be removed in production)
-// @route   POST /auth/register
-// @access  Public
+
 const register = async (req, res) => {
   try {
     const { username, email, password, fullName, role, employeeId } = req.body;
 
-    // Validate input
+    
     if (!username || !email || !password || !fullName) {
       return res.status(400).json({ message: 'Please provide all required fields' });
     }
 
-    // Check if user already exists
+   
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check if employee ID already exists (if provided)
+    
     if (employeeId) {
       const empIdExists = await User.findOne({ employeeId });
       if (empIdExists) {
@@ -108,9 +104,7 @@ const register = async (req, res) => {
   }
 };
 
-// @desc    Get current logged in user
-// @route   GET /auth/me
-// @access  Private
+
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
