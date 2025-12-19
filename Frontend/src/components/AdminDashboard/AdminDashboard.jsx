@@ -53,7 +53,7 @@ function AdminDashboard({ user, onLogout }) {
 
       if (response.ok) {
         alert('Leave request approved successfully!');
-        fetchAllLeaveRequests(); // Refresh the list
+        fetchAllLeaveRequests(); 
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to approve leave request');
@@ -78,7 +78,7 @@ function AdminDashboard({ user, onLogout }) {
 
       if (response.ok) {
         alert('Leave request rejected successfully!');
-        fetchAllLeaveRequests(); // Refresh the list
+        fetchAllLeaveRequests(); 
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to reject leave request');
@@ -92,6 +92,7 @@ function AdminDashboard({ user, onLogout }) {
   const totalRequests = leaveRequests.length;
   const pendingRequests = leaveRequests.filter(req => req.status === 'Pending').length;
   const approvedRequests = leaveRequests.filter(req => req.status === 'Approved').length;
+  const rejectedRequests = leaveRequests.filter(req => req.status === 'Rejected').length;
 
   return (
     <div className="admin-dashboard">
@@ -115,32 +116,22 @@ function AdminDashboard({ user, onLogout }) {
       {/* Welcome Message */}
       {showWelcome && (
         <div className="welcome-banner">
-          <svg 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="#0f5132" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-          <span>Welcome back, {user?.name || 'Admin User'}!</span>
+          <span>👋😊 Welcome back, {user?.name || 'Admin User'}!</span>
         </div>
       )}
 
       {/* Main Content */}
       <main className="dashboard-content">
         <div className="page-header">
-          <h2 className="page-title">Employee Leave Management System 🗓️</h2>
+          <h2 className="page-title">All Leave Requests</h2>
         </div>
 
-        {/* Stats Cards */}
+                        {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
+            <div className="stat-icon stat-icon-yellow">
+              📊
+            </div>
             <div className="stat-content">
               <div className="stat-number">{totalRequests}</div>
               <div className="stat-label">Total Requests</div>
@@ -148,6 +139,9 @@ function AdminDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
+            <div className="stat-icon stat-icon-blue">
+              ⌛
+            </div>
             <div className="stat-content">
               <div className="stat-number">{pendingRequests}</div>
               <div className="stat-label">Pending Review</div>
@@ -155,9 +149,22 @@ function AdminDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
+            <div className="stat-icon stat-icon-green">
+              ✅
+            </div>
             <div className="stat-content">
               <div className="stat-number">{approvedRequests}</div>
               <div className="stat-label">Approved</div>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon stat-icon-red">
+              ❌
+            </div>
+            <div className="stat-content">
+              <div className="stat-number">{rejectedRequests}</div>
+              <div className="stat-label">Rejected</div>
             </div>
           </div>
         </div>
@@ -193,8 +200,8 @@ function AdminDashboard({ user, onLogout }) {
                 leaveRequests.map((request) => (
                   <tr key={request._id}>
                     <td>{request.employee?.fullName || 'Unknown'}</td>
-                    <td>{new Date(request.startDate).toLocaleDateString()}</td>
-                    <td>{new Date(request.endDate).toLocaleDateString()}</td>
+                    <td>{new Date(request.startDate).toLocaleDateString('en-GB')}</td>
+                    <td>{new Date(request.endDate).toLocaleDateString('en-GB')}</td>
                     <td>{request.totalDays}</td>
                     <td>{request.reason}</td>
                     <td>
@@ -210,38 +217,13 @@ function AdminDashboard({ user, onLogout }) {
                               className="action-btn approve-btn"
                               onClick={() => handleApprove(request._id)}
                               title="Approve"
-                            >
-                              <svg 
-                                width="16" 
-                                height="16" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="2" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round"
-                              >
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
+                            >✅
                             </button>
                             <button 
                               className="action-btn reject-btn"
                               onClick={() => handleReject(request._id)}
                               title="Reject"
-                            >
-                              <svg 
-                                width="16" 
-                                height="16" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="2" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round"
-                              >
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                              </svg>
+                            >❌
                             </button>
                           </>
                         )}

@@ -145,16 +145,24 @@
   justify-content: center;
 }
 
-.stat-icon-blue {
-  background-color: #dbeafe;
+.stat-icon-yellow {
+  background-color: #fef3c7;
+  font-size: 36px;
 }
 
-.stat-icon-orange {
-  background-color: #ffe5d0;
+.stat-icon-blue {
+  background-color: #dbeafe;
+  font-size: 36px;
+}
+
+.stat-icon-red {
+  background-color: #fee2e2;
+  font-size: 32px;
 }
 
 .stat-icon-green {
   background-color: #d1f4e0;
+  font-size: 32px;
 }
 
 .stat-content {
