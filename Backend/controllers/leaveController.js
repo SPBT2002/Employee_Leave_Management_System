@@ -1,9 +1,7 @@
 const Leave = require('../models/Leave');
 const User = require('../models/User');
 
-// @desc    Create a new leave request
-// @route   POST /leaves
-// @access  Private (Employee only)
+
 const createLeave = async (req, res) => {
   try {
     console.log('=== CREATE LEAVE REQUEST ===');
@@ -61,9 +59,7 @@ const createLeave = async (req, res) => {
   }
 };
 
-// @desc    Get employee's own leave history
-// @route   GET /leaves/my-leaves
-// @access  Private (Employee only)
+
 const getMyLeaves = async (req, res) => {
   try {
     const leaves = await Leave.find({ employee: req.user._id })
@@ -81,9 +77,7 @@ const getMyLeaves = async (req, res) => {
   }
 };
 
-// @desc    Get all leave requests
-// @route   GET /leaves/all
-// @access  Private (Admin only)
+// Get all leave requests
 const getAllLeaves = async (req, res) => {
   try {
     const leaves = await Leave.find()
@@ -101,9 +95,7 @@ const getAllLeaves = async (req, res) => {
   }
 };
 
-// @desc    Update leave status (Approve/Reject)
-// @route   PUT /leaves/:id/status
-// @access  Private (Admin only)
+
 const updateLeaveStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -138,9 +130,7 @@ const updateLeaveStatus = async (req, res) => {
   }
 };
 
-// @desc    Get single leave request
-// @route   GET /leaves/:id
-// @access  Private
+
 const getLeaveById = async (req, res) => {
   try {
     const leave = await Leave.findById(req.params.id)
@@ -165,9 +155,7 @@ const getLeaveById = async (req, res) => {
   }
 };
 
-// @desc    Delete leave request
-// @route   DELETE /leaves/:id
-// @access  Private (Employee can delete own pending leaves, Admin can delete any)
+
 const deleteLeave = async (req, res) => {
   try {
     const leave = await Leave.findById(req.params.id);

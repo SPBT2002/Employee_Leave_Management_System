@@ -2,13 +2,6 @@
 
 <div align="center">
 
-![Leave Management](https://img.shields.io/badge/Leave-Management-blue?style=for-the-badge)
-![React](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react)
-![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js)
-![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge&logo=mongodb)
-
-**A modern, full-stack solution for streamlined leave request management**
-
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Usage](#-usage) • [Project Structure](#-project-structure)
 
 </div>
@@ -84,7 +77,7 @@ MongoDB >= 4.x
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/SPBT2002/Employee_Leave_Management_System.git
 cd Employee_Leave_Management_System
 ```
 
@@ -100,9 +93,9 @@ npm install
 # Create .env file
 # Add the following environment variables:
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/employee_leave_db
-JWT_SECRET=your_super_secret_jwt_key_here
-NODE_ENV=development
+MONGODB_URI=
+JWT_SECRET=
+NODE_ENV=
 
 # Start the backend server
 npm start
@@ -140,11 +133,17 @@ The frontend application will start on `http://localhost:5173`
 
 ### Employee Workflow
 
+1. **Create Account** - Create an account. If you already have an account, log in.
 1. **Login** - Access the system using your credentials
 2. **Dashboard** - View your leave request history
 3. **Create Request** - Click "New Leave Request" and fill in the details
 4. **Submit** - Review and submit your request
 5. **Track** - Monitor the status from your dashboard
+
+Default Admin User to log in:
+
+- **Email:** admin@ems.com
+- **Password:** admin123
 
 ### Admin Workflow
 
@@ -152,7 +151,7 @@ The frontend application will start on `http://localhost:5173`
 2. **View Requests** - See all pending and processed leave requests
 3. **Review** - Click on a request to view details
 4. **Approve/Reject** - Make decisions with a single click
-5. **Manage Users** - Create employee accounts as needed
+
 
 ---
 
@@ -215,7 +214,7 @@ Employee_Leave_Management_System/
 │               ├── AdminDashboard.jsx
 │               └── AdminDashboard.css
 │
-└── 📄 README.md                     # You are here! 📍
+└── 📄 README.md                     # About the project and Instructions
 ```
 
 ---
@@ -235,89 +234,12 @@ GET    /api/leaves                 # Get all leaves (Admin) or user's leaves (Em
 POST   /api/leaves                 # Create new leave request
 GET    /api/leaves/:id             # Get specific leave details
 PUT    /api/leaves/:id             # Update leave status (Admin)
-DELETE /api/leaves/:id             # Delete leave request
+
 ```
-
----
-
-## 🎨 Screenshots
-
-<div align="center">
-
-### Employee Dashboard
-*Submit and track your leave requests with ease*
-
-### Admin Dashboard
-*Manage all leave requests from a centralized interface*
-
-### Login Page
-*Secure authentication for all users*
-
-</div>
-
----
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create! Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 🐛 Known Issues
-
-- [ ] Date picker UI could be improved
-- [ ] Email notifications not yet implemented
-- [ ] Mobile responsiveness needs enhancement on certain screens
-
----
-
-## 🚧 Future Enhancements
-
-- [ ] 📧 Email notifications for leave approvals/rejections
-- [ ] 📊 Advanced analytics and reporting
-- [ ] 📱 Progressive Web App (PWA) support
-- [ ] 🌐 Multi-language support
-- [ ] 📤 Export leave reports to PDF/Excel
-- [ ] 🔔 Real-time notifications
-- [ ] 📅 Calendar view for leave schedules
-- [ ] 💼 Department-wise leave management
-- [ ] 🏖️ Different leave types (Sick, Vacation, Personal, etc.)
-
----
-
-## 📝 License
-
-This project is open source and available under the [ISC License](LICENSE).
-
----
-
 ## 👨‍💻 Author
 
-**Your Name**
+**Supun Piyumal**
 
 ---
 
-## 🙏 Acknowledgments
 
-- React team for the amazing library
-- Express.js community for the robust framework
-- MongoDB for flexible data storage
-- All contributors who help improve this project
-
----
-
-<div align="center">
-
-### ⭐ Star this repository if you find it helpful!
-
-**Built with ❤️ for better workplace management**
-
-[Report Bug](https://github.com/yourusername/repo/issues) • [Request Feature](https://github.com/yourusername/repo/issues)
-
-</div>
