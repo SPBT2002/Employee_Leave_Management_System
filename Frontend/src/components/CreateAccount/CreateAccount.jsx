@@ -150,7 +150,7 @@ function CreateAccount({ onAccountCreated, onBackToLogin }) {
               id="email"
               name="email"
               className={`form-input ${errors.email ? 'input-error' : ''}`}
-              placeholder="your.email@company.com"
+              placeholder="example@gmail.com"
               value={formData.email}
               onChange={handleChange}
             />
