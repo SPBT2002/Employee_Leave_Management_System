@@ -130,20 +130,7 @@ function EmployeeDashboard({ user, onLogout }) {
       {/* Welcome Message */}
       {showWelcome && (
         <div className="welcome-banner">
-          <svg 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="#0f5132" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
-          <span>Welcome back, {user?.name || 'John Doe'}!</span>
+          <span>👋😊  Welcome back, {user?.name || 'John Doe'}!</span>
         </div>
       )}
 
@@ -155,27 +142,15 @@ function EmployeeDashboard({ user, onLogout }) {
             <p className="page-subtitle">Manage your time off</p>
           </div>
           <button className="apply-leave-btn" onClick={() => setShowApplyForm(true)}>
-            <svg 
-              width="18" 
-              height="18" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="white" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Apply for Leave
+            ✚ Apply for Leave
           </button>
         </div>
-
         {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
-            
+            <div className="stat-icon stat-icon-blue">
+              ⏳
+            </div>
             <div className="stat-content">
               <div className="stat-number">{pendingCount}</div>
               <div className="stat-label">Pending</div>
@@ -183,6 +158,9 @@ function EmployeeDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
+            <div className="stat-icon stat-icon-green">
+              ✅
+            </div>
             <div className="stat-content">
               <div className="stat-number">{approvedCount}</div>
               <div className="stat-label">Approved</div>
@@ -190,6 +168,9 @@ function EmployeeDashboard({ user, onLogout }) {
           </div>
 
           <div className="stat-card">
+            <div className="stat-icon stat-icon-red">
+              ❌
+            </div>
             <div className="stat-content">
               <div className="stat-number">{rejectedCount}</div>
               <div className="stat-label">Rejected</div>
@@ -225,8 +206,8 @@ function EmployeeDashboard({ user, onLogout }) {
               ) : (
                 leaveRequests.map((request) => (
                   <tr key={request._id}>
-                    <td>{new Date(request.startDate).toLocaleDateString()}</td>
-                    <td>{new Date(request.endDate).toLocaleDateString()}</td>
+                    <td>{new Date(request.startDate).toLocaleDateString('en-GB')}</td>
+                    <td>{new Date(request.endDate).toLocaleDateString('en-GB')}</td>
                     <td>{request.totalDays}</td>
                     <td>{request.reason}</td>
                     <td>
