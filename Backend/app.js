@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const User = require('./models/User');
 
@@ -15,6 +16,12 @@ const app = express();
 
 const initializeAdmin = async () => {
   try {
+    // Check if database is connected
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️  Skipping admin initialization - Database not connected');
+      return;
+    }
+    
     const adminExists = await User.findOne({ email: 'admin@ems.com' });
     
     if (!adminExists) {
@@ -37,10 +44,12 @@ const initializeAdmin = async () => {
 };
 
 
-connectDB().then(() => {
-  initializeAdmin();
+connectDB().then((conn) => {
+  if (conn) {
+    initializeAdmin();
+  }
 }).catch((err) => {
-  console.error('Failed to connect to database:', err);
+  console.error('Database connection attempt failed:', err.message);
 });
 
 
